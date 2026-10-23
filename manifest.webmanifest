@@ -1,0 +1,20 @@
+{
+  "name": "Cotizador Netsky",
+  "short_name": "Netsky",
+  "description": "Cotizaciones de planes de internet y televisión Netsky.",
+  "lang": "es-CL",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e6e1d8",
+  "theme_color": "#089fac",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

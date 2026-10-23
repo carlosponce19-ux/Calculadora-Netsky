@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#089fac">
+    <meta name="description" content="Calculadora de cotizaciones Netsky para planes de internet y televisión.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Netsky">
+    <title>Cotizador Netsky</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Netsky, inicio">
+        <img class="brand-logo" src="netsky-logo.svg" alt="Netsky, proveedores de internet">
+      </a>
+      <span class="topbar-label"><span class="status-dot"></span> Herramienta comercial <span class="topbar-divider">/</span> Los Ríos</span>
+    </header>
+
+    <main class="shell">
+      <section id="home-view" class="home-view" aria-labelledby="home-title">
+        <p class="section-kicker">NETSKY · LOS RÍOS</p>
+        <h1 id="home-title">¿Qué necesitas hacer?</h1>
+        <p class="home-intro">Cotiza un servicio o cuéntanos cómo fue la atención durante tu instalación.</p>
+        <div class="home-actions">
+          <button id="go-to-quote" class="button button-primary" type="button"><span>Cotizar servicio</span><span aria-hidden="true">↗</span></button>
+          <button id="go-to-survey" class="button button-whatsapp" type="button">Evaluar al técnico</button>
+        </div>
+      </section>
+      <div id="quote-app" hidden>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">VENTAS <span>·</span> COTIZADOR</p>
+        <h1 id="page-title">Una buena conexión<br><span>empieza aquí.</span></h1>
+        <p class="intro-copy">Configura el servicio y comparte una cotización clara, lista para enviar.</p>
+        <button class="button button-secondary return-home" type="button">Volver al inicio</button>
+        <div class="intro-stamp" aria-hidden="true"><span>NS</span><span>LOS RÍOS<br>CHILE</span></div>
+      </section>
+
+      <div class="workspace">
+        <form id="quote-form" class="form-panel">
+          <div class="panel-heading">
+            <div><p class="section-kicker">01 — DATOS DEL CLIENTE</p><h2>¿Para quién cotizamos?</h2></div>
+            <span class="required-note">* Obligatorio</span>
+          </div>
+
+          <div class="field-grid customer-grid">
+            <label class="field field-wide">Nombre completo <span>*</span>
+              <input name="clientName" type="text" autocomplete="name" placeholder="Nombre y apellido" required>
+            </label>
+            <label class="field">Teléfono <span>*</span>
+              <input name="phone" type="tel" autocomplete="tel" placeholder="+56 9 1234 5678" required>
+            </label>
+            <label class="field">Localidad <span>*</span>
+              <select id="localidad" name="localidad" required>
+                <option value="" selected disabled>Selecciona una localidad</option>
+              </select>
+            </label>
+            <label class="field field-wide">Dirección de instalación <span>*</span>
+              <input name="address" type="text" autocomplete="street-address" placeholder="Calle, número y referencia" required>
+              <button id="location-button" class="button button-secondary location-button" type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                <span>Agregar ubicación GPS</span>
+              </button>
+              <span id="location-status" class="field-hint location-status" role="status" aria-live="polite" hidden></span>
+            </label>
+            <label class="field">Fecha de instalación <span>*</span>
+              <input id="installation-date" name="installationDate" type="date" required>
+            </label>
+            <label class="field field-wide">Servicio o referencia <small>Opcional</small>
+              <input name="service" type="text" placeholder="Ej. nuevo servicio, cambio de domicilio">
+            </label>
+            <label class="field field-wide">Técnico responsable <small>Opcional para cotizar; necesario para enviar la encuesta</small>
+              <input name="technician" type="text" autocomplete="name" maxlength="100" placeholder="Nombre del técnico">
+            </label>
+          </div>
+
+          <div class="form-rule"></div>
+
+          <div class="panel-heading service-heading">
+            <div><p class="section-kicker">02 — CONFIGURACIÓN</p><h2>Arma el plan</h2></div>
+          </div>
+          <div class="field-grid service-grid">
+            <label class="field">Tecnología <span>*</span>
+              <select id="tecnologia" name="tecnologia" required>
+                <option value="" selected disabled>Selecciona tecnología</option>
+                <option value="Fibra">Fibra óptica</option>
+                <option value="Antena">Antena</option>
+              </select>
+            </label>
+            <label class="field">Zona tarifaria <span>*</span>
+              <select id="zona" name="zona" required>
+                <option value="" selected disabled>Primero elige localidad</option>
+              </select>
+            </label>
+            <label class="field">Plan <span>*</span>
+              <select id="plan" name="plan" required>
+                <option value="" selected disabled>Selecciona un plan</option>
+              </select>
+              <span id="plan-speed" class="field-hint" hidden></span>
+            </label>
+            <label class="field">Paquete <span>*</span>
+              <select id="paquete" name="paquete" required>
+                <option value="" selected disabled>Selecciona un paquete</option>
+              </select>
+            </label>
+            <label class="field">Pago de instalación
+              <select id="installation-installments" name="installationInstallments">
+                <option value="1" selected>1 cuota</option>
+                <option value="3">3 cuotas</option>
+              </select>
+              <span id="installation-installments-hint" class="field-hint" hidden>Para instalaciones de $4.990 se aplica 1 cuota.</span>
+            </label>
+          </div>
+
+          <div class="decoder-row">
+            <div><span class="decoder-title">Decodificadores adicionales</span><span class="decoder-caption">$29.990 por unidad</span></div>
+            <div class="stepper" aria-label="Cantidad de decodificadores">
+              <button id="decoder-minus" type="button" aria-label="Quitar un decodificador" title="Quitar">−</button>
+              <output id="decoder-count" aria-live="polite">0</output>
+              <button id="decoder-plus" type="button" aria-label="Agregar un decodificador" title="Agregar">+</button>
+            </div>
+          </div>
+
+          <section class="expansion-request" aria-labelledby="expansion-title">
+            <p class="section-kicker">03 — AMPLIACIÓN DE RED</p>
+            <h3 id="expansion-title">¿Necesitas extender la red?</h3>
+            <p class="expansion-copy">Indica el tipo y la cantidad de cable para calcular el valor de la ampliación.</p>
+            <label class="expansion-toggle">
+              <input id="expansion-requested" name="expansionRequested" type="checkbox">
+              <span>Solicitar cotización de ampliación</span>
+            </label>
+            <div id="expansion-meters-field" class="field-grid expansion-fields" hidden>
+              <label class="field">Tipo de cable <span>*</span>
+                <select id="expansion-cable-type" name="expansionCableType">
+                  <option value="cat6">Cable de red CAT6 · $980/m</option>
+                  <option value="drop">Cable drop por conduit · $1.490/m</option>
+                </select>
+              </label>
+              <label class="field">Metros aproximados <span>*</span>
+                <input id="expansion-meters" name="expansionMeters" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej. 25">
+              </label>
+              <span id="expansion-rate-hint" class="field-hint">La ampliación queda sujeta a evaluación de factibilidad.</span>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <button class="button button-primary" type="submit"><span>Calcular cotización</span><span aria-hidden="true">↗</span></button>
+            <p id="feedback" class="feedback" role="alert" hidden></p>
+          </div>
+        </form>
+
+        <aside class="result-column" aria-label="Resultado de la cotización">
+          <div class="result-note"><span class="note-mark">i</span><p>Completa los datos para generar el resumen del servicio y sus valores.</p></div>
+          <section id="quote-preview" class="quote-preview" hidden aria-live="polite">
+            <article id="quote-document" class="quote-document">
+              <div class="document-topline"><img class="document-brand" src="netsky-logo.svg" alt="Netsky, proveedores de internet"><span id="quote-date" class="document-date"></span></div>
+              <div class="document-title"><p class="section-kicker">PROPUESTA DE SERVICIO</p><h2>Tu próxima<br>conexión.</h2></div>
+              <dl id="quote-details" class="quote-details"></dl>
+              <div class="price-block">
+                <div id="proration-row" class="price-row"><span id="proration-label">Cargo proporcional</span><strong id="proration-total"></strong></div>
+                <div id="promo-row" class="price-row promo-row" hidden><span>Promoción · primeros 2 meses completos</span><strong id="promo-monthly"></strong></div>
+                <div class="price-row"><span id="mensualidad-label">Mensualidad completa</span><strong id="mensualidad"></strong></div>
+                <div class="price-row"><span id="installation-label">Instalación</span><strong id="installation-total"></strong></div>
+                <div id="installation-full-row" class="price-row" hidden><span>Costo total de instalación</span><strong id="installation-full-total"></strong></div>
+                <div id="installation-remaining-row" class="price-row" hidden><span>Cuotas 2 y 3</span><strong id="installation-remaining-total"></strong></div>
+                <div id="expansion-total-row" class="price-row" hidden><span id="expansion-total-label">Ampliación de red</span><strong id="expansion-total"></strong></div>
+                <div class="price-row"><span>Decodificadores</span><strong id="decoder-total"></strong></div>
+                <div class="price-row total-row"><span>Total inicial</span><strong id="total"></strong></div>
+              </div>
+              <p class="document-footnote">Valores en pesos chilenos (CLP). El primer mes se cobra proporcionalmente desde la fecha de instalación, sin descuento. Las promociones aplican únicamente a meses completos.</p>
+            </article>
+            <div class="share-actions">
+              <button id="pdf-button" class="button button-secondary" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg><span>Descargar PDF</span></button>
+              <button id="whatsapp-button" class="button button-whatsapp" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.2 11.7a8.2 8.2 0 0 1-12.1 7.2L3 20l1.2-4.8a8.2 8.2 0 1 1 16-3.5Z"/><path d="M8.3 8.2c.3-.5.6-.5.9-.5h.4c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.5.6c-.2.2-.2.4 0 .6.3.5.7 1 1.2 1.4.5.4 1 .7 1.5.9.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .4-.2 1.1-.6 1.4-.4.4-1 .6-1.6.6-.5 0-1.2-.2-2-.5a9.5 9.5 0 0 1-3.2-2.2 9.5 9.5 0 0 1-2-2.8c-.5-1.1-.5-2-.2-2.6.3-.5.6-.8 1.2-.9Z"/></svg><span>Solicitar contratación</span></button>
+              <button id="survey-whatsapp-button" class="button button-whatsapp survey-share-button" type="button"><span>Enviar encuesta al cliente</span></button>
+            </div>
+            <p id="survey-share-feedback" class="feedback" role="status" aria-live="polite" hidden></p>
+          </section>
+          <div class="result-footer"><span>NETSKY TELECOMUNICACIONES</span><span>REGIÓN DE LOS RÍOS · CL</span></div>
+        </aside>
+      </div>
+      <details id="technician-stats" class="stats-panel">
+        <summary>Estadísticas de atención · uso interno</summary>
+        <div class="stats-content">
+          <p class="stats-note">El panel requiere acceso con la cuenta corporativa autorizada. Las evaluaciones se guardan en Supabase y se envían a ventas01netsky@gmail.com.</p>
+          <div id="stats-login" class="stats-login">
+            <button id="stats-login-button" class="button button-secondary" type="button">Ingresar con ventas01netsky@gmail.com</button>
+            <p id="stats-auth-feedback" class="feedback" role="status" aria-live="polite" hidden></p>
+          </div>
+          <div id="stats-dashboard" hidden>
+            <div class="stats-toolbar">
+              <p id="stats-account" class="stats-note"></p>
+              <button id="stats-logout-button" class="button button-secondary" type="button">Cerrar sesión</button>
+            </div>
+            <p id="stats-data-feedback" class="stats-empty" role="status" aria-live="polite"></p>
+          <div class="stats-table-wrap">
+            <table id="technician-stats-table" class="stats-table" hidden>
+              <caption>Promedios de las evaluaciones recibidas</caption>
+              <thead><tr><th scope="col">Técnico</th><th scope="col">Respuestas</th><th scope="col">Puntualidad / 7</th><th scope="col">Explicación / 7</th><th scope="col">Orden y limpieza / 7</th><th scope="col">Dudas / 7</th><th scope="col">Trato / 7</th><th scope="col">Recomendación / 7</th><th scope="col">Promedio general / 7</th></tr></thead>
+              <tbody id="technician-stats-body"></tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+      </details>
+      </div>
+      <section id="survey-view" class="survey-view" aria-labelledby="survey-title" hidden>
+        <p class="section-kicker">NETSKY · EXPERIENCIA DE INSTALACIÓN</p>
+        <h1 id="survey-title">¿Cómo fue tu experiencia?</h1>
+        <p class="survey-intro">Tu opinión nos ayuda a mejorar. Responder toma solo unos minutos.</p>
+        <p class="survey-intro">Califica cada punto del 1 (muy deficiente) al 7 (excelente).</p>
+        <p class="survey-intro">Tus respuestas se compartirán con Netsky para evaluar y mejorar la atención.</p>
+        <button class="button button-secondary return-home" type="button">Volver al inicio</button>
+        <p id="survey-technician" class="survey-technician" hidden>Técnico: <strong id="survey-technician-name"></strong></p>
+        <label id="survey-technician-entry" class="field survey-technician-entry">Nombre del técnico <span>*</span>
+          <select id="survey-technician-input" required>
+            <option value="" selected disabled>Selecciona un técnico</option>
+          </select>
+        </label>
+        <p id="survey-invalid" class="feedback" role="alert" hidden>Este enlace no identifica al técnico. Solicita uno nuevo a Netsky.</p>
+        <form id="customer-survey-form" class="survey-form">
+          <label class="field survey-question">1. ¿Cómo calificaría la puntualidad del técnico durante la instalación? <span>*</span>
+            <select name="punctuality" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question">2. ¿El técnico explicó de forma clara el funcionamiento del servicio instalado? <span>*</span>
+            <select name="clarity" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question">3. ¿La instalación quedó realizada de manera ordenada y limpia? <span>*</span>
+            <select name="cleanliness" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question">4. ¿El técnico respondió adecuadamente a sus dudas o consultas? <span>*</span>
+            <select name="questions" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question">5. ¿Cómo califica la amabilidad y trato recibido por parte del técnico? <span>*</span>
+            <select name="kindness" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question survey-recommendation">6. En una escala de 1 a 7, ¿qué tan probable es que recomiende nuestro servicio a familiares o amigos? <span>*</span>
+            <select name="recommendation" required><option value="" selected disabled>Selecciona una nota de 1 a 7</option></select>
+          </label>
+          <label class="field survey-question">Comentario <small>Opcional</small>
+            <span class="survey-comment-label">¿Tiene alguna sugerencia o comentario sobre la atención recibida durante la instalación?</span>
+            <textarea name="comment" rows="4" placeholder="Escribe aquí tu comentario"></textarea>
+          </label>
+          <button class="button button-whatsapp survey-submit" type="submit">Enviar evaluación</button>
+          <p id="survey-submit-feedback" class="feedback" role="status" aria-live="polite" hidden></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="page-footer"><span>NETSKY <span class="footer-dot">·</span> CONECTANDO LOS RÍOS</span><span>Precios sujetos a disponibilidad técnica.</span></footer>
+  </body>
+</html>

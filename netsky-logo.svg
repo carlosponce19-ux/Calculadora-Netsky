@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 180" role="img" aria-labelledby="title desc">
+  <title id="title">Netsky</title>
+  <desc id="desc">Netsky, proveedores de internet</desc>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="500" letter-spacing="7">
+    <text x="2" y="107" fill="#303030">NET</text>
+    <text x="328" y="107" fill="#35a9e8">SKY</text>
+  </g>
+  <g fill="none" stroke="#7bc943" stroke-linecap="round" stroke-width="13">
+    <path d="M217 101a64 64 0 0 1 0-81"/>
+    <path d="M239 85a42 42 0 0 1 0-49"/>
+    <path d="M303 20a64 64 0 0 1 0 81"/>
+    <path d="M281 36a42 42 0 0 1 0 49"/>
+  </g>
+  <circle cx="260" cy="61" r="13" fill="#7bc943"/>
+  <text x="270" y="161" fill="#303030" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="5" text-anchor="middle">PROVEEDORES DE INTERNET</text>
+</svg>
